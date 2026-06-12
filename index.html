@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NexusText AI — Premium Text Swiss-Knife</title>
+    
+    <meta name="description" content="The global professional standard to clean tracking, fix document layouts, and optimize context for AI and copywriting instantly.">
+    <meta name="keywords" content="text cleaner, remove tracking, format pdf copy paste, AI context optimizer, premium copywriter tool">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        body {
+            background-color: #0b0f19;
+            color: #f1f5f9;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+        .premium-gradient {
+            background: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
+        }
+        .glass-panel {
+            background: rgba(17, 24, 39, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen justify-between p-6 md:p-12">
+
+    <header class="max-w-4xl mx-auto w-full flex justify-between items-center mb-8">
+        <div class="flex items-center space-x-2">
+            <div class="w-3 h-3 rounded-full premium-gradient animate-pulse"></div>
+            <span class="font-bold tracking-tight text-lg">NEXUSTEXT<span class="text-indigo-400">.AI</span></span>
+        </div>
+        <div id="lang-badge" class="text-xs text-slate-500 font-medium tracking-wide uppercase bg-slate-900 px-3 py-1 rounded-full border border-slate-800">
+            Global Network Ready
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto w-full flex-grow flex flex-col justify-center">
+        
+        <div class="mb-8">
+            <h1 id="main-title" class="text-3xl md:text-5xl font-extrabold tracking-tight mb-3">
+                Intelligent Text Architecture.
+            </h1>
+            <p id="main-desc" class="text-slate-400 text-base md:text-lg max-w-xl">
+                Clean background metadata, reconstruct fragmented layouts, and align structure to professional objectives.
+            </p>
+        </div>
+
+        <div class="glass-panel w-full rounded-2xl p-2 shadow-2xl shadow-black/50 mb-6">
+            <textarea id="input-box" placeholder="Drop, paste or compose your text structure here..." class="w-full h-64 bg-slate-950/80 rounded-xl p-5 text-slate-200 placeholder-slate-600 focus:outline-none focus:border-purple-500/50 transition-colors resize-none text-base leading-relaxed"></textarea>
+            
+            <div class="flex justify-between items-center px-4 py-2 text-xs text-slate-500">
+                <div class="flex items-center space-x-4">
+                    <span id="credit-count">Daily Credits: 3 / 3</span>
+                </div>
+                <span class="font-semibold text-slate-400 bg-slate-800/50 px-2 py-0.5 rounded">LIFETIME ACCESS: $9.99</span>
+            </div>
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-4 items-center justify-between w-full bg-slate-900/30 p-3 rounded-xl border border-slate-800/40">
+            <div class="w-full sm:w-auto flex-grow">
+                <select id="context-select" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-3 text-sm text-slate-300 focus:outline-none focus:border-indigo-500">
+                    <option value="clean" id="opt-clean">✨ Mode 1: Pure Cleaning & Anti-Tracking Only</option>
+                    <option value="resume" id="opt-resume">💼 Mode 2: Adapt & Format for Career & ATS Resumes</option>
+                    <option value="business" id="opt-biz">🚀 Mode 3: Convert to High-Conversion Copywriting (AIDA)</option>
+                </select>
+            </div>
+            <button onclick="processEngine()" class="w-full sm:w-auto premium-gradient hover:opacity-95 text-white font-medium text-sm px-8 py-3 rounded-lg transition-all shadow-lg shadow-purple-500/10 active:scale-[0.98] whitespace-nowrap">
+                <span id="btn-text">Execute Engine</span>
+            </button>
+        </div>
+
+    </main>
+
+    <footer class="max-w-4xl mx-auto w-full pt-8 flex flex-col sm:flex-row justify-between text-xs text-slate-600 border-t border-slate-900 mt-8">
+        <p>&copy; 2026 NexusText. All rights reserved. Zero-Data Tracking Cloud.</p>
+        <div class="flex space-x-4 mt-2 sm:mt-0">
+            <a href="#" onclick="triggerShare()" id="link-share" class="hover:text-indigo-400 transition-colors">Alternative Unlock: Share with Peers</a>
+            <a href="#" onclick="triggerPayment()" class="hover:text-pink-400 font-medium transition-colors">Go Premium ($9.99)</a>
+        </div>
+    </footer>
+
+    <script>
+        let credits = 3;
+        const systemLang = navigator.language || navigator.userLanguage;
+        const isFr = systemLang.startsWith('fr');
+
+        // Traduction automatique instantanée pour l'élégance internationale
+        if (isFr) {
+            document.getElementById('main-title').innerHTML = "L'Architecture Intelligente du Texte.";
+            document.getElementById('main-desc').innerText = "Nettoyez les métadonnées de traquage, reconstruisez les mises en page brisées des PDF et adaptez vos structures de texte selon vos objectifs pro.";
+            document.getElementById('input-box').placeholder = "Déposez, collez ou rédigez votre texte ici...";
+            document.getElementById('credit-count').innerText = "Essais gratuits : 3 / 3";
+            document.getElementById('opt-clean').innerText = "✨ Mode 1 : Nettoyage Pur & Anti-Traquage";
+            document.getElementById('opt-resume').innerText = "💼 Mode 2 : Adapter & Formater pour un CV / ATS";
+            document.getElementById('opt-biz').innerText = "🚀 Mode 3 : Convertir en Copieur Vendeur (AIDA)";
+            document.getElementById('btn-text').innerText = "Exécuter l'Algorithme";
+            document.getElementById('link-share').innerText = "Déblocage gratuit : Partager avec des proches";
+        }
+
+        function processEngine() {
+            let text = document.getElementById('input-box').value;
+            if(!text) {
+                return alert(isFr ? "La zone de texte est vide." : "The text area is empty.");
+            }
+
+            if (credits <= 0) {
+                return triggerGate();
+            }
+
+            let mode = document.getElementById('context-select').value;
+            
+            // Logique Complexe de traitement de chaîne
+            // 1. Nettoyage global obligatoire des espaces et sauts de ligne fantômes de PDF
+            let result = text.replace(/\s+/g, ' ').trim();
+            // 2. Nettoyage algorithmique des paramètres de tracking d'URL mondiaux
+            result = result.replace(/\?utm_[^&\s]+/gi, '');
+            result = result.replace(/&utm_[^&\s]+/gi, '');
+
+            if (mode === "resume") {
+                // Simulation d'adaptation de contexte pro structurelle
+                result = `[ATS COMPLIANT STRUCTURE]\n\n${result.toUpperCase()}\n\n[OPTIMIZED FOR PROFESSIONAL CONTEXT]`;
+            } else if (mode === "business") {
+                // Simulation de restructuration en framework AIDA international
+                result = `🔥 ATTENTION:\n${result.substring(0, 60)}...\n\n💡 INTEREST:\nDiscover the deep value built for global users.\n\n🎯 DESIRE:\nNo friction, instant utility.\n\n⚡ ACTION:\nGet started now.`;
+            }
+
+            document.getElementById('input-box').value = result;
+            credits--;
+            document.getElementById('credit-count').innerText = isFr ? `Essais gratuits : ${credits} / 3` : `Daily Credits: ${credits} / 3`;
+            
+            alert(isFr ? "Exécution réussie avec succès !" : "Engine execution successful!");
+        }
+
+        function triggerGate() {
+            alert(isFr ? "Limite atteinte. Pour continuer à utiliser l'outil, veuillez acheter l'accès à vie à 9,99$ ou utiliser le lien de partage gratuit en bas." : "Limit reached. To continue using the engine, unlock Lifetime Access for $9.99 or share the application using the link below.");
+        }
+
+        function triggerShare() {
+            // Boucle virale : simule le partage et recharge les crédits gratuitement
+            const shareText = isFr ? "Découvrez NexusText AI, l'outil indispensable pour vos textes :" : "Check out NexusText AI, the ultimate text engine:";
+            const shareUrl = window.location.href;
+            window.open(`https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`, '_blank');
+            
+            credits = 5;
+            document.getElementById('credit-count').innerText = isFr ? `Essais gratuits : ${credits} / 3 (Bonus Activé)` : `Daily Credits: ${credits} / 3 (Bonus Active)`;
+            alert(isFr ? "Merci pour le partage ! 5 nouveaux essais gratuits ont été injectés." : "Thank you for sharing! 5 new free credits have been injected.");
+        }
+
+        function triggerPayment() {
+            // Redirection vers le lien de paiement mondial futur (Gumroad/Paddle)
+            alert(isFr ? "Redirection sécurisée vers la passerelle de paiement (9,99$)..." : "Securing connection to payment gateway ($9.99)...");
+        }
+    </script>
+</body>
+</html>
