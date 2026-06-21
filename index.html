@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXUSTEXT.AI — International Textual Engineering</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --chat-bg: #111827;
+            --text-color: #ffffff;
+            --text-muted: #9ca3af;
+            --border-color: #1f2937;
+            --box-user: #a855f7;
+            --box-ia: #1f2937;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif; transition: background 0.3s, color 0.3s; }
+        body { background-color: var(--bg-color); color: var(--text-color); display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+
+        /* --- AUTH SCREEN --- */
+        .auth-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0b0f19; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
+        .auth-box { background: #111827; border: 1px solid #1f2937; padding: 40px 30px; border-radius: 28px; text-align: center; max-width: 400px; width: 100%; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .auth-logo { font-size: 1.8rem; font-weight: 900; margin-bottom: 10px; letter-spacing: 1px; }
+        .auth-logo span { color: #a855f7; }
+        .auth-subtitle { color: #9ca3af; font-size: 0.9rem; margin-bottom: 25px; line-height: 1.5; }
+        
+        .input-email-box { width: 100%; padding: 14px; background: #1f2937; border: 1px solid #374151; border-radius: 14px; color: white; font-size: 1rem; outline: none; margin-bottom: 15px; text-align: center; }
+        .input-email-box::placeholder { color: #6b7280; }
+        .btn-magic { width: 100%; padding: 14px; background: #a855f7; color: white; border: none; border-radius: 14px; font-weight: bold; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 12px; }
+
+        /* --- APPLI --- */
+        .header { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); background: var(--chat-bg); }
+        .logo { font-weight: 900; font-size: 1.2rem; letter-spacing: 1px; }
+        .logo span { color: #a855f7; }
+        .status-badge { font-size: 0.8rem; padding: 6px 12px; border-radius: 20px; font-weight: bold; }
+        .btn-logout { background: transparent; border: none; color: var(--text-muted); cursor: pointer; font-size: 0.9rem; margin-left: 10px; }
+
+        .app-container { flex: 1; display: flex; flex-direction: column; position: relative; height: calc(100vh - 120px); }
+        .chat-zone { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; max-width: 800px; width: 100%; margin: 0 auto; }
+        .message { max-width: 85%; padding: 14px 18px; border-radius: 20px; line-height: 1.6; font-size: 0.95rem; white-space: pre-line; animation: fadeIn 0.3s ease; }
+        .message.user { align-self: flex-end; background: var(--box-user); color: #ffffff; border-bottom-right-radius: 4px; }
+        .message.ia { align-self: flex-start; background: var(--box-ia); color: var(--text-color); border-bottom-left-radius: 4px; border: 1px solid var(--border-color); }
+
+        /* --- LOADING --- */
+        .loading-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #ffffff; display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 10; }
+        .pencil-container { width: 120px; height: 120px; margin-bottom: 20px; }
+        .pencil-svg path { stroke: #a855f7; stroke-width: 4; fill: none; stroke-dasharray: 1000; stroke-dashoffset: 1000; animation: drawPencil 2s infinite linear; }
+
+        /* --- INPUTS --- */
+        .input-container { padding: 15px; background: var(--bg-color); width: 100%; max-width: 800px; margin: 0 auto; }
+        .input-box { background: var(--chat-bg); border: 1px solid var(--border-color); border-radius: 28px; padding: 8px 16px; display: flex; align-items: center; gap: 10px; }
+        textarea { flex: 1; background: transparent; border: none; outline: none; color: var(--text-color); resize: none; height: 24px; font-size: 1rem; line-height: 24px; }
+        select { background: transparent; color: var(--text-muted); border: none; font-size: 0.85rem; outline: none; cursor: pointer; font-weight: 600; }
+        .btn-send { background: #a855f7; color: white; border: none; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+
+        /* --- MODAL --- */
+        .share-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 100; align-items: center; justify-content: center; }
+        .share-content { background: var(--chat-bg); border: 1px solid var(--border-color); padding: 25px; border-radius: 24px; text-align: center; max-width: 340px; width: 90%; }
+        .btn-share-opt { width: 100%; padding: 12px; border-radius: 12px; border: none; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+
+        .bottom-actions { display: flex; justify-content: center; gap: 25px; padding: 12px; border-top: 1px solid var(--border-color); }
+        .action-link { text-decoration: none; color: var(--text-muted); font-size: 0.85rem; font-weight: bold; background: transparent; border: none; cursor: pointer; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes drawPencil { 0% { stroke-dashoffset: 1000; } 100% { stroke-dashoffset: 0; } }
+    </style>
+</head>
+<body>
+
+    <div class="auth-container" id="auth-screen">
+        <div class="auth-box">
+            <div class="auth-logo">NEXUSTEXT<span>.AI</span></div>
+            <div class="auth-subtitle">Entrez votre e-mail pour recevoir instantanément votre lien magique de connexion et activer vos 7 jours d'essai gratuits.</div>
+            
+            <input type="email" id="auth-email" class="input-email-box" placeholder="Ex: votre-email@gmail.com" required>
+            
+            <button class="btn-magic" onclick="connexionEmailConnexion()">
+                <i class="fas fa-magic"></i> Recevoir mon lien d'accès
+            </button>
+        </div>
+    </div>
+
+    <div class="header">
+        <div class="logo">NEXUSTEXT<span>.AI</span></div>
+        <div style="display: flex; align-items: center;">
+            <div id="statut-premium" class="status-badge">Calcul...</div>
+            <button class="btn-logout" onclick="deconnexion()"><i class="fas fa-sign-out-alt"></i></button>
+        </div>
+    </div>
+
+    <div class="app-container">
+        <div class="loading-screen" id="loading-screen">
+            <div class="pencil-container">
+                <svg viewBox="0 0 100 100" width="100%" height="100%" class="pencil-svg">
+                    <path d="M 25 80 L 25 20 L 75 80 L 75 20" />
+                </svg>
+            </div>
+            <div class="loading-text">Ingénierie textuelle en cours...</div>
+        </div>
+        <div class="chat-zone" id="chat-zone">
+            <div class="message ia">Bienvenue sur **NEXUSTEXT.AI**. Votre accès d'une semaine est actif.<br><br>💬 Envie de discuter librement pour tester mes capacités ? Sélectionnez **Discussion Libre**.<br>🚀 Prêt pour de la haute performance ? Choisissez l'une de nos 3 options maîtresses spécialisées.</div>
+        </div>
+    </div>
+
+    <div class="input-container">
+        <div class="input-box">
+            <textarea id="user-input" placeholder="Discutez ou collez votre document ici..."></textarea>
+            <select id="mode-option">
+                <option value="chat">💬 Discussion Libre</option>
+                <option value="meta">✨ Métadonnées (Pro)</option>
+                <option value="cv">📝 Option CV (Pro)</option>
+                <option value="pro">🚀 Mode Pro (Surpuissant)</option>
+            </select>
+            <button class="btn-send" onclick="envoyerMessage()"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+
+    <div class="bottom-actions">
+        <a href="https://vgdjhedt.mychariow.shop/prd_qjfhzn78" target="_blank" class="action-link" style="color: #a855f7;"><i class="fas fa-crown"></i> Version Illimitée (9,99 $)</a>
+        <button onclick="ouvrirMenuPartage()" class="action-link"><i class="fas fa-share-alt"></i> Gagner +1 Semaine</button>
+    </div>
+
+    <div class="share-modal" id="shareModal">
+        <div class="share-content">
+            <div style="font-weight:bold; margin-bottom:15px;">📢 Programme de Parrainage</div>
+            <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:15px;">Partage ton lien unique. Pour chaque partage effectué, nous t'offrons immédiatement **1 semaine supplémentaire** gratuite !</p>
+            <div class="share-buttons">
+                <button onclick="copierLienEtAjouterTemps()" class="btn-share-opt" style="background:#a855f7; color:white;"><i class="fas fa-copy"></i> Copier mon lien (+7 Jours)</button>
+                <button onclick="fermerMenuPartage()" class="btn-share-opt" style="background:transparent; color:var(--text-muted);">Annuler</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = "https://svodbjczupdxnpnysaik.supabase.co"; 
+        const SUPABASE_ANON_KEY = "Sb_publishable_FcH0Got-W1q0vcJJgG2NXA_hZ1UUoEY"; 
+        
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        let currentUser = null;
+        let dateExpiration = null;
+
+        async function verifierSession() {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session) {
+                currentUser = session.user;
+                document.getElementById('auth-screen').style.display = 'none';
+                await chargerProfilUtilisateur();
+            } else {
+                document.getElementById('auth-screen').style.display = 'flex';
+            }
+        }
+
+        async function connexionEmailConnexion() {
+            const emailInput = document.getElementById('auth-email').value.trim();
+            if (!emailInput) {
+                alert("Veuillez entrer une adresse e-mail valide.");
+                return;
+            }
+
+            const { error } = await supabase.auth.signInWithOtp({
+                email: emailInput,
+                options: {
+                    emailRedirectTo: window.location.origin + window.location.pathname
+                }
+            });
+
+            if (error) {
+                alert("Erreur : " + error.message);
+            } else {
+                alert("✉️ Un lien magique a été envoyé à l'adresse " + emailInput + ". Ouvrez votre boîte mail et cliquez dessus pour vous connecter !");
+            }
+        }
+
+        async function deconnexion() {
+            await supabase.auth.signOut();
+            window.location.reload();
+        }
+
+        async function chargerProfilUtilisateur() {
+            if (!currentUser) return;
+            let { data, error } = await supabase.from('profiles').select('expiration_premium').eq('id', currentUser.id).single();
+            
+            if (error && error.code === 'PGRST116') {
+                let dateFin = new Date();
+                dateFin.setDate(dateFin.getDate() + 7);
+                
+                const { data: newProfile } = await supabase.from('profiles').insert([
+                    { id: currentUser.id, expiration_premium: dateFin.toISOString() }
+                ]).select().single();
+                data = newProfile;
+            }
+            
+            dateExpiration = data ? new Date(data.expiration_premium) : null;
+            rafraichirCompteAReboursUI();
+        }
+
+        function rafraichirCompteAReboursUI() {
+            const badge = document.getElementById('statut-premium');
+            if (!dateExpiration) return;
+
+            const maintenant = new Date();
+            const differenceId = dateExpiration - maintenant;
+
+            if (differenceId > 0) {
+                const jours = Math.floor(differenceId / (1000 * 60 * 60 * 24));
+                const heures = Math.floor((differenceId % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                
+                if (jours > 0) {
+                    badge.innerText = `PREMIUM : ${jours}J et ${heures}H restants`;
+                } else {
+                    badge.innerText = `PREMIUM : ${heures}H restantes`;
+                }
+                badge.style.background = "#10b981";
+                badge.style.color = "#fff";
+            } else {
+                badge.innerText = "ACCÈS EXPIRÉ";
+                badge.style.background = "#ef4444";
+                badge.style.color = "#fff";
+            }
+        }
+
+        async function copierLienEtAjouterTemps() {
+            if (!currentUser || !dateExpiration) return;
+
+            let baseDate = dateExpiration > new Date() ? dateExpiration : new Date();
+            baseDate.setDate(baseDate.getDate() + 7);
+            dateExpiration = baseDate;
+
+            await supabase.from('profiles').update({ expiration_premium: dateExpiration.toISOString() }).eq('id', currentUser.id);
+            navigator.clipboard.writeText(window.location.origin + window.location.pathname + "?ref=" + currentUser.id);
+            
+            alert("✨ Bravo ! Lien copié et +1 semaine ajoutée à votre compte !");
+            rafraichirCompteAReboursUI();
+            fermerMenuPartage();
+        }
+
+        async function appelerIAHuggingFace(systemPrompt, userText) {
+            const promptComplet = `<|system|>\n${systemPrompt}\n<|user|>\n${userText}\n<|assistant|>\n`;
+            
+            const response = await fetch("https://api-inference.huggingface.co/models/Qwen/Qwen2.5-72B-Instruct", {
+                headers: { "Content-Type": "application/json" },
+                method: "POST",
+                body: JSON.stringify({ inputs: promptComplet }),
+            });
+
+            const result = await response.json();
+            if (result.error) throw new Error(result.error);
+            return result[0].generated_text.split("<|assistant|>\n")[1] || result[0].generated_text;
+        }
+
+        async function envoyerMessage() {
+            if (!currentUser) return;
+            if (dateExpiration && new Date() > dateExpiration) {
+                alert("Votre semaine d'essai gratuite est terminée. Partagez votre lien ou passez à la version Premium.");
+                return;
+            }
+
+            const input = document.getElementById('user-input');
+            const option = document.getElementById('mode-option').value;
+            const texte = input.value.trim();
+            if (!texte) return;
+
+            input.value = '';
+            const loadingScreen = document.getElementById('loading-screen');
+            loadingScreen.style.display = 'flex';
+
+            let instructionRole = "";
+            
+            // GESTION DES RÔLES SELON L'OPTION CHOISIE
+            if (option === "chat") {
+                instructionRole = "Tu es l'assistant conversationnel de NEXUSTEXT.AI. Tu es amical, engageant et chaleureux. Ton but est de discuter de tout et de rien de manière fluide, de conseiller l'utilisateur et de le mettre en totale confiance pour lui montrer l'excellence de notre technologie.";
+            } else if (option === "meta") {
+                instructionRole = "Tu es le module de nettoyage de NEXUSTEXT.AI. Supprime métadonnées et espaces superflus. Affiche le texte purifié.";
+            } else if (option === "cv") {
+                instructionRole = "Tu es l'ingénieur en recrutement de NEXUSTEXT.AI. Réorganise ce texte sous forme de CV premium avec puces épurées.";
+            } else if (option === "pro") {
+                instructionRole = "Tu es le rédacteur corporate de NEXUSTEXT.AI. Reformule ce texte dans un style d'affaires haut de gamme.";
+            }
+
+            try {
+                const reponseIA = await appelerIAHuggingFace(instructionRole, texte);
+                loadingScreen.style.display = 'none';
+                ajouterMessageUI(texte, 'user');
+                ajouterMessageUI(reponseIA, 'ia');
+            } catch (error) {
+                loadingScreen.style.display = 'none';
+                ajouterMessageUI(texte, 'user');
+                ajouterMessageUI("⚠️ Service surchargé. Relancez l'analyse dans un instant.", 'ia');
+            }
+        }
+
+        function ajouterMessageUI(texte, type) {
+            const zone = document.getElementById('chat-zone');
+            const div = document.createElement('div');
+            div.className = `message ${type}`;
+            div.innerText = texte;
+            zone.appendChild(div);
+            zone.scrollTop = zone.scrollHeight;
+        }
+
+        function ouvrirMenuPartage() { document.getElementById('shareModal').style.display = 'flex'; }
+        function fermerMenuPartage() { document.getElementById('shareModal').style.display = 'none'; }
+
+        supabase.auth.onAuthStateChange((event, session) => { verifierSession(); });
+        window.onload = function() { verifierSession(); };
+    </script>
+</body>
+</html>
